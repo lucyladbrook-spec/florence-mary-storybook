@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Florence and Mary Storybooks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Grandstander:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: a night-time ward backdrop; the illustration fills the stage, the words sit on a paper card beside it. */
+  --night: #1a2030;
+  --night-2: #252d42;
+  --paper: #f8f1e2;
+  --ink: #2b2620;
+  --lamp: #e6ad3f;
+  --herb: #5f9e6c;
+  --mist: #a9b1c3;
+  --accent: var(--lamp);
+  --display: "Grandstander", "Comic Sans MS", system-ui, sans-serif;
+  --body: "Andika", "Century Gothic", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: radial-gradient(ellipse at 50% 0%, var(--night-2), var(--night) 70%);
+  background-color: var(--night);
+  color: var(--paper);
+  font-family: var(--body);
+  overflow: hidden;
+}
+button { font-family: var(--body); cursor: pointer; }
+button:focus-visible, a:focus-visible, .cover:focus-visible, .vocab:focus-visible {
+  outline: 3px solid var(--accent); outline-offset: 3px;
+}
+.view { height: 100%; display: none; }
+.view.on { display: flex; }
+
+/* ---------- Home ---------- */
+#home {
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(16px, 3vh, 32px); padding: 24px 16px; overflow-y: auto;
+}
+#home h1 {
+  font-family: var(--display); font-weight: 800; margin: 0;
+  font-size: clamp(2rem, 5vw, 3.6rem); text-wrap: balance; text-align: center;
+}
+.bq {
+  font-size: clamp(1.1rem, 2.2vw, 1.6rem); color: var(--mist); margin: 0; text-align: center;
+}
+.bq strong { color: var(--paper); }
+.covers { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: clamp(16px, 4vw, 48px); width: 100%; justify-content: center; }
+.cover {
+  background: var(--paper); color: var(--ink); border: 0; border-radius: 14px; padding: 12px 12px 18px;
+  display: flex; flex-direction: column; gap: 12px; text-align: left;
+  box-shadow: 0 18px 40px rgba(0,0,0,.45); transition: transform .2s ease;
+  border-top: 10px solid var(--c);
+}
+.cover:hover { transform: translateY(-4px) rotate(-.4deg); }
+.cover img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; display: block; }
+.cover .who { font-family: var(--display); font-weight: 800; font-size: clamp(1.3rem, 2.4vw, 1.9rem); line-height: 1.1; }
+.cover .sub { font-size: 1.05rem; color: #5e564b; }
+.keys { color: var(--mist); font-size: .95rem; text-align: center; max-width: 60ch; }
+kbd { background: var(--night-2); border: 1px solid #3a4460; border-radius: 4px; padding: 1px 6px; font-family: var(--body); color: var(--paper); }
+
+/* ---------- Book ---------- */
+#book { flex-direction: column; }
+.bar {
+  display: flex; align-items: center; gap: 10px; padding: 10px 16px; flex-wrap: wrap;
+}
+.bar .title { font-family: var(--display); font-weight: 800; font-size: clamp(1.1rem, 2vw, 1.5rem); margin-right: auto; color: var(--accent); }
+.tool {
+  display: inline-flex; align-items: center; gap: 8px; background: var(--night-2); color: var(--paper);
+  border: 1px solid #3a4460; border-radius: 999px; padding: 8px 14px; font-size: 1rem;
+}
+.tool:hover { border-color: var(--accent); }
+.tool[aria-pressed="false"] { color: var(--mist); }
+.tool svg { width: 20px; height: 20px; }
+.stage {
+  flex: 1; min-height: 0; display: grid; gap: 16px; padding: 0 16px 8px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 34%);
+}
+.stage.nowords { grid-template-columns: minmax(0, 1fr); }
+.stage.nowords .words { display: none; }
+.pic {
+  min-height: 0; display: flex; align-items: center; justify-content: center; position: relative;
+}
+.pic img {
+  max-width: 100%; max-height: 100%; border-radius: 12px; display: block;
+  box-shadow: 0 0 0 6px var(--paper), 0 24px 50px rgba(0,0,0,.55);
+  animation: fadein .45s ease;
+}
+@keyframes fadein { from { opacity: .25; transform: scale(.985); } to { opacity: 1; transform: none; } }
+.words {
+  background: var(--paper); color: var(--ink); border-radius: 14px; padding: clamp(16px, 2.2vw, 28px);
+  overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 14px;
+  border-top: 10px solid var(--accent);
+}
+.words p { margin: 0; font-size: clamp(1.1rem, 1.55vw, 1.55rem); line-height: 1.5; max-width: 65ch; }
+.words h2 { font-family: var(--display); font-weight: 800; margin: 0; font-size: clamp(1.6rem, 2.8vw, 2.4rem); line-height: 1.1; text-wrap: balance; }
+.vocab {
+  font-weight: 700; color: var(--ink); background: color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 4px; padding: 0 3px; cursor: help; border-bottom: 2px dotted var(--ink);
+}
+.def {
+  background: var(--ink); color: var(--paper); border-radius: 10px; padding: 12px 14px; font-size: 1.1rem; line-height: 1.4;
+}
+.def b { color: var(--accent); }
+.stop {
+  display: flex; gap: 12px; align-items: flex-start; background: #fff7df; border: 3px solid var(--accent);
+  border-radius: 12px; padding: 12px 14px; margin-top: auto;
+}
+.stop svg { flex: none; width: 34px; height: 34px; color: var(--accent); }
+.stop .lab { font-family: var(--display); font-weight: 800; font-size: 1.05rem; display: block; color: #6b5a2c; }
+.stop p { font-size: clamp(1.1rem, 1.5vw, 1.45rem); font-weight: 700; }
+.nav {
+  display: flex; align-items: center; justify-content: center; gap: 16px; padding: 8px 16px 14px;
+}
+.arrow {
+  width: 64px; height: 64px; border-radius: 50%; border: 0; background: var(--accent); color: var(--night);
+  display: grid; place-items: center; box-shadow: 0 6px 16px rgba(0,0,0,.4);
+}
+.arrow:disabled { opacity: .3; cursor: default; }
+.arrow svg { width: 30px; height: 30px; }
+.dots { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--mist); background: transparent; padding: 0; }
+.dot.on { background: var(--accent); border-color: var(--accent); }
+.count { color: var(--mist); font-size: 1rem; min-width: 7ch; text-align: center; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 820px) {
+  body { overflow: auto; }
+  .covers { grid-template-columns: minmax(0, 420px); }
+  .stage { grid-template-columns: 1fr; grid-template-rows: auto auto; }
+  .pic img { max-height: 55vh; }
+  #book { height: auto; min-height: 100%; }
+  .arrow { width: 54px; height: 54px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pic img { animation: none; }
+  .cover { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<main id="home" class="view on" aria-labelledby="home-title">
+  <h1 id="home-title">Florence and Mary</h1>
+  <p class="bq">Big question: <strong>How did a lamp and herbs change hospitals?</strong></p>
+  <div class="covers">
+    <button class="cover" style="--c: var(--lamp)" data-book="florence" aria-label="Open The Lady with the Lamp, the story of Florence Nightingale">
+      <img src="img/florence-01.jpg" alt="Florence Nightingale holding a glowing lamp">
+      <span class="who">The Lady with the Lamp</span>
+      <span class="sub">The story of Florence Nightingale · 12 pages</span>
+    </button>
+    <button class="cover" style="--c: var(--herb)" data-book="mary" aria-label="Open Mother Seacole, the story of Mary Seacole">
+      <img src="img/mary-01.jpg" alt="Mary Seacole holding a bowl of herbs">
+      <span class="who">Mother Seacole</span>
+      <span class="sub">The story of Mary Seacole · 12 pages</span>
+    </button>
+  </div>
+  <p class="keys">Turn pages with <kbd>←</kbd> <kbd>→</kbd> or the space bar. <kbd>W</kbd> hides the words, <kbd>F</kbd> goes full screen, <kbd>Esc</kbd> comes back here.</p>
+</main>
+
+<section id="book" class="view" aria-live="polite">
+  <div class="bar">
+    <span class="title" id="book-title"></span>
+    <button class="tool" id="btn-words" aria-pressed="true" title="Show or hide the words (W)">Words on</button>
+    <button class="tool" id="btn-full" title="Full screen (F)">Full screen</button>
+    <button class="tool" id="btn-home" title="Back to both books (Esc)">Both books</button>
+  </div>
+  <div class="stage" id="stage">
+    <div class="pic"><img id="pic" alt=""></div>
+    <article class="words" id="words"></article>
+  </div>
+  <div class="nav">
+    <button class="arrow" id="prev" aria-label="Previous page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="dots" id="dots"></div>
+    <span class="count" id="count"></span>
+    <button class="arrow" id="next" aria-label="Next page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<script>
+/* ---------------- Story text ---------------- */
+const GLOSSARY = {
+  "Crimean War": "A war from 1853 to 1856. Britain and France fought against Russia.",
+  "Scutari": "The army hospital in Turkey where Florence worked.",
+  "insanitary": "Dirty and unhealthy.",
+  "infections": "Illnesses caused by germs spreading.",
+  "hygiene": "Keeping people and places clean to stop germs spreading.",
+  "significant": "Important. A significant person changed things for other people.",
+  "herbs": "Plants used for cooking or to help people get better.",
+  "remedies": "Things that help make you better.",
+  "discrimination": "Treating someone unfairly because of who they are.",
+  "British Hotel": "The place Mary built where soldiers could get food, warmth and medicine.",
+  "Lady with the Lamp": "The name soldiers gave Florence because she checked on them at night with a lamp.",
+  "Mother Seacole": "The name soldiers gave Mary because she cared for them like a mother."
+};
+
+const BOOKS = {
+  florence: {
+    title: "The Lady with the Lamp", accent: "var(--lamp)", img: "florence",
+    pages: [
+      { h: "The Lady with the Lamp", text: ["The story of Florence Nightingale."] },
+      { text: ["A long time ago, in 1820, a baby girl was born in a city in Italy called Florence. Her parents loved the city so much that they called their baby Florence too. Her family name was Nightingale."] },
+      { text: ["Florence's family was very rich. They had two big houses, lots of servants and beautiful clothes. Her parents wanted Florence to get married, go to parties and live a quiet life at home.",
+               "But Florence wanted something different. She loved looking after people. When people in the village were poorly, Florence visited them and helped to care for them. She even bandaged the paw of a hurt dog!"] },
+      { text: ["When she grew up, Florence told her family, \"I want to be a nurse.\" Her family was shocked. In those days, nurses were not trained and hospitals were horrible places. Rich ladies did not become nurses."],
+        stop: "Why didn't Florence's family want her to be a nurse?" },
+      { text: ["But Florence was determined. She went away to learn how to be a nurse. In 1853 she was put in charge of a small hospital in London.",
+               "Then, in 1854, news came of a war far away, called the [[Crimean War]]. British soldiers were fighting there and many were hurt. The soldiers were taken to an army hospital called [[Scutari]]. Florence was asked to help. She set off with a team of 38 nurses."] },
+      { text: ["When Florence arrived at Scutari, she could not believe her eyes. The hospital was [[insanitary]]. The floors were dirty. Rats ran between the beds. There was not enough clean water, food or bandages. The soldiers lay in dirty sheets. Many soldiers were not dying from their wounds. They were dying from [[infections]] that spread because everything was so dirty."],
+        stop: "What was wrong with the hospital at Scutari? Why were soldiers getting ill?" },
+      { text: ["Florence got to work straight away. She and her nurses scrubbed the floors and walls. They washed the sheets and the soldiers' clothes."] },
+      { text: ["They opened the windows to let in fresh air. They made sure the soldiers had good food and clean water. Florence knew that [[hygiene]] – keeping things clean – would help stop germs spreading."] },
+      { text: ["Every night, when the doctors had gone to bed, Florence walked through the long, dark wards. She carried a lamp to check on every soldier. She gave them a kind word and made sure they were comfortable. The soldiers called her \"The [[Lady with the Lamp]]\"."] },
+      { text: ["Florence also did something very clever. She wrote down how many soldiers were ill and how many died. She used her numbers to show that a clean hospital saved lives. Slowly, fewer soldiers died."] },
+      { text: ["When the war ended in 1856, Florence came home a hero. People all over the country had heard about the Lady with the Lamp."] },
+      { text: ["But she did not stop working. In 1860, she opened a school in London to train nurses. Nurses learned to keep hospitals clean and to care for their patients properly.",
+               "Florence died in 1910, when she was 90 years old. Today, hospitals all over the world keep things clean because of what Florence taught us. That is why she is [[significant]]."] }
+    ]
+  },
+  mary: {
+    title: "Mother Seacole", accent: "var(--herb)", img: "mary",
+    pages: [
+      { h: "Mother Seacole", text: ["The story of Mary Seacole."] },
+      { text: ["A long time ago, in 1805, a baby girl called Mary was born on a sunny island called Jamaica, in the Caribbean. When she grew up and married, her name became Mary Seacole."] },
+      { text: ["Mary's mother was a healer. She ran a boarding house where poorly people came to stay and get better. She knew how to use plants and [[herbs]] to make [[remedies]] that helped people who were unwell."] },
+      { text: ["Mary watched her mother carefully and learned everything she could. When Mary was a little girl, she practised on her doll! Then she practised on cats and dogs. When she was older, she helped her mother care for sick soldiers and sailors."],
+        stop: "Where did Mary learn about herbs and remedies?" },
+      { text: ["Mary loved to travel. She went to many places and helped people wherever she went. When a terrible illness called cholera spread, Mary used her remedies to care for the sick. She became famous for being a brilliant healer."] },
+      { text: ["In 1854, Mary heard about the [[Crimean War]]. British soldiers were hurt and ill, far away from home. Mary knew some of those soldiers – she had cared for them in Jamaica. She wanted to help."] },
+      { text: ["Mary travelled all the way to London. She asked to join the nurses going to the war. But the people in charge said no. They turned her away again and again. Mary believed it was because of the colour of her skin. This was [[discrimination]]. It was unfair."],
+        stop: "How do you think Mary felt when she was turned away? What would you have done?" },
+      { text: ["But Mary did not give up. She was brave and determined. In 1855, she paid for the long journey herself. On her way, she stopped at [[Scutari]] and met Florence Nightingale."] },
+      { text: ["When Mary arrived near the battlefields, she built a place called the [[British Hotel]]. It was made from old wood and metal she found. Inside, soldiers could get hot food, warm drinks, medicine and a kind word. Mary used her herbal remedies to treat soldiers who were ill."] },
+      { text: ["Mary did something else that was very brave. She rode out to the battlefields on horseback. She carried bags full of bandages, medicine and food. She cared for wounded soldiers right where they fell, sometimes while the fighting was still going on."] },
+      { text: ["The soldiers loved her. They called her \"[[Mother Seacole]]\"."] },
+      { text: ["When the war ended in 1856, Mary came back to England. She had spent all her money helping the soldiers and now she was poor. But the soldiers did not forget her. They held a big festival to raise money for her. Mary also wrote a book about her amazing life.",
+               "Mary died in 1881. For many years, people forgot about her. Today, she has a statue outside a big hospital in London, so everyone can remember how she cared for others. That is why she is [[significant]]."] }
+    ]
+  }
+};
+
+/* ---------------- Book view ---------------- */
+let book = null, page = 0;
+const $ = id => document.getElementById(id);
+
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+function renderText(s) {
+  return esc(s).replace(/\[\[(.+?)\]\]/g, (m, w) => `<span class="vocab" tabindex="0" role="button" data-w="${w}">${w}</span>`);
+}
+
+function show() {
+  const b = BOOKS[book], p = b.pages[page];
+  document.documentElement.style.setProperty("--accent", b.accent);
+  $("book-title").textContent = b.title;
+  const img = $("pic");
+  img.src = `img/${b.img}-${String(page + 1).padStart(2, "0")}.jpg`;
+  img.alt = p.h ? `Cover: ${p.h}` : `Picture for page ${page + 1}`;
+  img.style.animation = "none"; void img.offsetWidth; img.style.animation = "";
+  let html = p.h ? `<h2>${esc(p.h)}</h2>` : "";
+  html += p.text.map(t => `<p>${renderText(t)}</p>`).join("");
+  html += `<div id="def" hidden></div>`;
+  if (p.stop) html += `<div class="stop"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5"/><rect x="14" y="4" width="5" height="16" rx="1.5"/></svg><div><span class="lab">Stop and think</span><p>${esc(p.stop)}</p></div></div>`;
+  $("words").innerHTML = html; $("words").scrollTop = 0;
+  $("prev").disabled = page === 0; $("next").disabled = page === b.pages.length - 1;
+  $("count").textContent = `${page + 1} of ${b.pages.length}`;
+  $("dots").innerHTML = b.pages.map((_, i) => `<button class="dot${i === page ? " on" : ""}" data-i="${i}" aria-label="Go to page ${i + 1}"></button>`).join("");
+  if (location.hash !== `#${book}-${page + 1}`) history.replaceState(null, "", `#${book}-${page + 1}`);
+}
+function go(d) {
+  if (!book) return;
+  const n = page + d; if (n < 0 || n >= BOOKS[book].pages.length) return;
+  page = n; show();
+}
+function openBook(name, p = 0) {
+  book = name; page = p;
+  $("home").classList.remove("on"); $("book").classList.add("on");
+  show();
+}
+function goHome() {
+  book = null;
+  $("book").classList.remove("on"); $("home").classList.add("on");
+  history.replaceState(null, "", location.pathname + location.search);
+}
+
+document.querySelectorAll(".cover").forEach(c => c.addEventListener("click", () => openBook(c.dataset.book)));
+$("prev").onclick = () => go(-1);
+$("next").onclick = () => go(1);
+$("dots").addEventListener("click", e => { const i = e.target.dataset.i; if (i !== undefined) { page = +i; show(); } });
+function toggleWords() {
+  const st = $("stage"), on = st.classList.toggle("nowords");
+  $("btn-words").setAttribute("aria-pressed", !on); $("btn-words").textContent = on ? "Words off" : "Words on";
+}
+$("btn-words").onclick = toggleWords;
+function full() {
+  try {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    else document.exitFullscreen().catch(() => {});
+  } catch (e) {}
+}
+$("btn-full").onclick = full;
+$("btn-home").onclick = goHome;
+$("words").addEventListener("click", e => {
+  const w = e.target.closest(".vocab"); if (!w) return;
+  const d = $("def"); d.hidden = false; d.className = "def";
+  d.innerHTML = `<b>${esc(w.dataset.w)}:</b> ${esc(GLOSSARY[w.dataset.w] || "")}`;
+});
+$("words").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.classList.contains("vocab")) { e.preventDefault(); e.stopPropagation(); e.target.click(); } });
+document.addEventListener("keydown", e => {
+  if (!book) return;
+  if (e.target.closest && e.target.closest(".vocab")) return;
+  if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); go(1); }
+  else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(-1); }
+  else if (e.key === "w" || e.key === "W") toggleWords();
+  else if (e.key === "f" || e.key === "F") full();
+  else if (e.key === "Escape" && !document.fullscreenElement) goHome();
+});
+
+/* Open straight to a page if the link names one, e.g. #mary-5. */
+function fromHash() {
+  const m = /^#(florence|mary)(?:-(\d+))?$/.exec(location.hash);
+  if (m) { const n = Math.min(Math.max((+m[2] || 1) - 1, 0), BOOKS[m[1]].pages.length - 1); openBook(m[1], n); }
+}
+fromHash();
+window.addEventListener("hashchange", () => { if (!location.hash) goHome(); else fromHash(); });
+</script>
+</body>
+</html>
