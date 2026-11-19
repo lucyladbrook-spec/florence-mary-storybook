@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lamp and Herbs Game</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka/Fraunces for friendly storybook headers, Nunito for clear Year 2 reading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Fraunces', 'Georgia', 'serif'],
+                        sans: ['Nunito', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        parchment: {
+                            50: '#FDFBF7',
+                            100: '#F8F3E8',
+                            200: '#EFE5D1',
+                            300: '#E2D1B3',
+                        },
+                        navy: {
+                            800: '#1E293B',
+                            900: '#13203B',
+                            950: '#0B1324',
+                        },
+                        lamp: {
+                            100: '#FEF3C7',
+                            200: '#FDE68A',
+                            400: '#FBBF24',
+                            500: '#D97706',
+                            600: '#B45309',
+                            700: '#92400E',
+                        },
+                        herb: {
+                            100: '#D1FAE5',
+                            200: '#A7F3D0',
+                            500: '#059669',
+                            600: '#047857',
+                            700: '#065F46',
+                        },
+                        both: {
+                            100: '#EDE9FE',
+                            200: '#DDD6FE',
+                            600: '#6D28D9',
+                            700: '#5B21B6',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8F3E8;
+            background-image: radial-gradient(#E2D1B3 0.85px, transparent 0.85px);
+            background-size: 24px 24px;
+            color: #13203B;
+            overflow-x: hidden;
+        }
+
+        /* Child-friendly Classroom Animations */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-float {
+            animation: floatSlow 3.2s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+        }
+        .animate-shake {
+            animation: shake 0.45s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.92) translateY(8px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-pop {
+            animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(420px) rotate(540deg); opacity: 0; }
+        }
+        .confetti-piece {
+            position: absolute;
+            top: -10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            pointer-events: none;
+            animation: confettiFall 2.8s ease-out forwards;
+        }
+
+        /* Drag & Drop Visual Cues */
+        .dragging-card {
+            opacity: 0.6;
+            transform: scale(0.97);
+        }
+        .drop-zone-active {
+            transform: scale(1.03);
+            box-shadow: 0 14px 28px -5px rgba(19, 32, 59, 0.22);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col selection:bg-lamp-200 selection:text-navy-900">
+
+    <!-- Top Storybook Header -->
+    <header class="bg-navy-900 text-parchment-50 shadow-lg border-b-4 border-lamp-500">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-5">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <!-- Title & Big Question -->
+                <div class="flex items-start sm:items-center gap-3.5">
+                    <div class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-lamp-400 to-lamp-600 flex items-center justify-center shadow-md border-2 border-lamp-200">
+                        <!-- Glowing Brass Lamp Emblem -->
+                        <svg class="w-9 h-9 text-navy-950" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 18h6" />
+                            <path d="M10 21h4" />
+                            <path d="M12 2v2" />
+                            <path d="M12 7a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V16h-4v-1.5A4 4 0 0 1 8 11a4 4 0 0 1 4-4z" fill="currentColor" fill-opacity="0.25"/>
+                            <path d="M4.9 4.9l1.2 1.2" />
+                            <path d="M19.1 4.9l-1.2 1.2" />
+                            <path d="M2 11h2" />
+                            <path d="M20 11h2" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-navy-800 border border-lamp-400/50 text-lamp-200 text-xs sm:text-sm font-extrabold tracking-wide uppercase mb-1">
+                            <span>Year 2 History • Florence &amp; Mary</span>
+                        </div>
+                        <h1 class="font-serif text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-tight">
+                            Big Question: <span class="text-lamp-400">"How did a lamp and herbs change hospitals?"</span>
+                        </h1>
+                    </div>
+                </div>
+
+                <!-- Mode Navigation Tabs -->
+                <div class="flex flex-wrap items-center gap-3 self-start lg:self-center">
+                <a href="index.html" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-extrabold text-base sm:text-lg bg-parchment-100 text-navy-900 hover:bg-white shadow-md transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                    <span>Home</span>
+                </a>
+                <nav aria-label="Game Modes" class="flex bg-navy-950/80 p-1.5 rounded-2xl border border-white/15 w-full sm:w-auto gap-1.5">
+                    <button id="tab-sort" onclick="switchMode('sort')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-extrabold text-base sm:text-lg transition-all duration-200 bg-lamp-500 text-navy-950 shadow-md cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10" />
+                        </svg>
+                        <span>1. Lamp or Herbs?</span>
+                    </button>
+                    <button id="tab-quiz" onclick="switchMode('quiz')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-extrabold text-base sm:text-lg transition-all duration-200 text-parchment-200 hover:text-white cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>2. Year 2 Quiz</span>
+                    </button>
+                </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Interactive Workspace -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+        <!-- ========================================================= -->
+        <!-- MODE 1: SORTING ACTIVITY ("Lamp or Herbs?")               -->
+        <!-- ========================================================= -->
+        <section id="view-sort" class="space-y-6">
+            
+            <!-- Top Instructions, Star Counter & Visual Progress Bar -->
+            <div class="bg-parchment-50 rounded-3xl p-5 sm:p-6 shadow-sm border-2 border-parchment-300 space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="font-serif text-2xl sm:text-3xl font-extrabold text-navy-900">
+                            Who Did What?
+                        </h2>
+                        <p class="text-navy-800 text-base sm:text-lg font-semibold mt-0.5">
+                            <strong>Drag</strong> the card into the right box, or <strong>tap a box below</strong>!
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-3 self-start md:self-center">
+                        <!-- Star & Progress Tracker -->
+                        <div class="bg-lamp-100 border-2 border-lamp-400 px-4 py-2.5 rounded-2xl flex items-center gap-2.5 shadow-sm">
+                            <svg class="w-7 h-7 text-lamp-500 fill-lamp-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                            </svg>
+                            <span class="text-sm sm:text-base font-extrabold text-lamp-700">Stars:</span>
+                            <span id="sort-progress-text" class="font-serif text-2xl font-extrabold text-navy-900">0 / 17</span>
+                        </div>
+
+                        <button onclick="resetSortingGame()" title="Start Again" class="px-4 py-3 rounded-2xl bg-parchment-200 hover:bg-parchment-300 text-navy-900 font-extrabold text-base flex items-center gap-2 transition cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <span>Start Again</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visual Progress Bar -->
+                <div class="w-full h-4 bg-parchment-200 rounded-full overflow-hidden border border-parchment-300" role="progressbar" aria-label="Sorting progress" aria-valuemin="0" aria-valuemax="17" aria-valuenow="0" id="sort-progressbar">
+                    <div id="sort-progress-fill" class="h-full bg-gradient-to-r from-lamp-500 via-both-600 to-herb-500 transition-all duration-500 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Active Clue Card Deck OR Completion Celebration -->
+            <div id="active-card-stage" class="relative">
+                <!-- Current Draggable Clue Card -->
+                <div id="clue-card-wrapper" class="max-w-2xl mx-auto">
+                    <div id="current-clue-card" draggable="true" class="animate-pop bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-navy-900 cursor-grab active:cursor-grabbing select-none transition-transform duration-200 hover:-translate-y-1">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-parchment-200 text-navy-900 text-sm font-extrabold uppercase tracking-wider">
+                                <svg class="w-4 h-4 text-lamp-600" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"/></svg>
+                                Fact Card <span id="clue-number">1</span> of 17
+                            </span>
+                            <span class="text-sm font-bold text-slate-600">Drag or tap a box below</span>
+                        </div>
+                        <p id="clue-text" class="font-serif text-2xl sm:text-3xl font-extrabold text-navy-900 text-center py-3 sm:py-4 leading-snug">
+                            Loading fact...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Instant Year 2 Feedback Banner -->
+                <div id="sort-feedback-banner" class="hidden max-w-2xl mx-auto mt-4 rounded-2xl p-4 sm:p-5 border-2 shadow-md animate-pop" role="status" aria-live="polite">
+                    <div class="flex items-start gap-3.5">
+                        <div id="sort-feedback-icon" class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-xl mt-0.5"></div>
+                        <div class="flex-1">
+                            <h3 id="sort-feedback-title" class="font-extrabold text-lg sm:text-xl"></h3>
+                            <p id="sort-feedback-desc" class="text-base sm:text-lg font-semibold mt-1 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Celebratory Completion State -->
+                <div id="sort-complete-card" class="hidden relative overflow-hidden max-w-3xl mx-auto bg-gradient-to-br from-navy-900 to-navy-800 text-white rounded-3xl p-6 sm:p-10 shadow-2xl border-4 border-lamp-400 text-center animate-pop">
+                    <div id="confetti-container" class="absolute inset-0 pointer-events-none"></div>
+                    <div class="relative z-10">
+                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-lamp-400 text-navy-950 mb-4 shadow-lg animate-float">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            </svg>
+                        </div>
+                        <h2 class="font-serif text-3xl sm:text-4xl font-extrabold text-lamp-300 mb-3">
+                            Brilliant Job! You Sorted All 17 Facts!
+                        </h2>
+                        <p class="text-parchment-100 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed mb-6 font-semibold">
+                            Look at how <strong class="text-lamp-300">Florence’s clean hospitals</strong> and <strong class="text-herb-200">Mary’s herbal medicines</strong> both helped soldiers get better. Together, a lamp and herbs changed hospitals forever!
+                        </p>
+                        <div class="flex flex-wrap items-center justify-center gap-4">
+                            <button onclick="switchMode('quiz')" class="px-7 py-4 rounded-2xl bg-lamp-500 hover:bg-lamp-400 text-navy-950 font-extrabold text-lg sm:text-xl shadow-lg transition transform hover:scale-105 cursor-pointer flex items-center gap-2">
+                                <span>Play the Year 2 Quiz</span>
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                            </button>
+                            <button onclick="resetSortingGame()" class="px-6 py-4 rounded-2xl bg-white/15 hover:bg-white/25 text-white font-extrabold text-lg border border-white/25 transition cursor-pointer">
+                                Play Sorting Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Three Target Sorting Buckets -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 pt-2">
+                
+                <!-- Bucket 1: Florence Nightingale -->
+                <div id="bucket-florence"
+                     data-category="florence"
+                     onclick="handleBucketClick('florence')"
+                     ondragover="handleDragOver(event, 'florence')"
+                     ondragleave="handleDragLeave(event, 'florence')"
+                     ondrop="handleDrop(event, 'florence')"
+                     role="button"
+                     tabindex="0"
+                     aria-label="Put card in Florence Nightingale, The Lady with the Lamp"
+                     class="group bg-lamp-100/90 hover:bg-lamp-100 border-4 border-dashed border-lamp-500 rounded-3xl p-4 sm:p-5 flex flex-col transition-all duration-200 cursor-pointer min-h-[280px]">
+                    
+                    <div class="flex items-center gap-3 pb-3 border-b-2 border-lamp-400/50">
+                        <div class="w-14 h-14 rounded-2xl bg-lamp-500 text-white flex items-center justify-center shadow-sm flex-shrink-0 group-hover:scale-105 transition">
+                            <!-- Lantern SVG -->
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 18h6m-5 4h4M12 2v2m0 3a4 4 0 014 4c0 1.6-.9 3-2.2 3.6V16h-3.6v-1.4A4 4 0 018 11a4 4 0 014-4z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-serif text-xl font-extrabold text-lamp-700 leading-tight">Florence Nightingale</h3>
+                            <p class="text-sm font-extrabold text-lamp-600">The Lady with the Lamp</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 mb-2 text-center">
+                        <span class="inline-block px-3.5 py-1.5 rounded-full bg-lamp-200 text-lamp-700 text-sm font-extrabold uppercase tracking-wide group-hover:bg-lamp-500 group-hover:text-white transition">
+                            Tap or Drop Here (<span id="count-florence">0</span>/6)
+                        </span>
+                    </div>
+
+                    <!-- Sorted Items List -->
+                    <ul id="list-florence" class="space-y-2 mt-1 flex-grow text-sm sm:text-base font-bold text-navy-900"></ul>
+                </div>
+
+                <!-- Bucket 2: Both Nurses -->
+                <div id="bucket-both"
+                     data-category="both"
+                     onclick="handleBucketClick('both')"
+                     ondragover="handleDragOver(event, 'both')"
+                     ondragleave="handleDragLeave(event, 'both')"
+                     ondrop="handleDrop(event, 'both')"
+                     role="button"
+                     tabindex="0"
+                     aria-label="Put card in Both Nurses"
+                     class="group bg-both-100/90 hover:bg-both-100 border-4 border-dashed border-both-600 rounded-3xl p-4 sm:p-5 flex flex-col transition-all duration-200 cursor-pointer min-h-[280px]">
+                    
+                    <div class="flex items-center gap-3 pb-3 border-b-2 border-both-600/30">
+                        <div class="w-14 h-14 rounded-2xl bg-both-600 text-white flex items-center justify-center shadow-sm flex-shrink-0 group-hover:scale-105 transition">
+                            <!-- Heart & Hands SVG -->
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-serif text-xl font-extrabold text-both-700 leading-tight">Both Nurses</h3>
+                            <p class="text-sm font-extrabold text-both-600">Florence &amp; Mary</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 mb-2 text-center">
+                        <span class="inline-block px-3.5 py-1.5 rounded-full bg-both-200 text-both-700 text-sm font-extrabold uppercase tracking-wide group-hover:bg-both-600 group-hover:text-white transition">
+                            Tap or Drop Here (<span id="count-both">0</span>/7)
+                        </span>
+                    </div>
+
+                    <!-- Sorted Items List -->
+                    <ul id="list-both" class="space-y-2 mt-1 flex-grow text-sm sm:text-base font-bold text-navy-900"></ul>
+                </div>
+
+                <!-- Bucket 3: Mary Seacole -->
+                <div id="bucket-mary"
+                     data-category="mary"
+                     onclick="handleBucketClick('mary')"
+                     ondragover="handleDragOver(event, 'mary')"
+                     ondragleave="handleDragLeave(event, 'mary')"
+                     ondrop="handleDrop(event, 'mary')"
+                     role="button"
+                     tabindex="0"
+                     aria-label="Put card in Mary Seacole, Mother Seacole"
+                     class="group bg-herb-100/90 hover:bg-herb-100 border-4 border-dashed border-herb-600 rounded-3xl p-4 sm:p-5 flex flex-col transition-all duration-200 cursor-pointer min-h-[280px]">
+                    
+                    <div class="flex items-center gap-3 pb-3 border-b-2 border-herb-500/40">
+                        <div class="w-14 h-14 rounded-2xl bg-herb-600 text-white flex items-center justify-center shadow-sm flex-shrink-0 group-hover:scale-105 transition">
+                            <!-- Mortar & Pestle with Herbs SVG -->
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 13h16a8 8 0 01-16 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 21h6" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13l4-7" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 13c0-3-2-5-4-5 0 3 2 5 4 5z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-serif text-xl font-extrabold text-herb-700 leading-tight">Mary Seacole</h3>
+                            <p class="text-sm font-extrabold text-herb-600">Mother Seacole</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 mb-2 text-center">
+                        <span class="inline-block px-3.5 py-1.5 rounded-full bg-herb-200 text-herb-700 text-sm font-extrabold uppercase tracking-wide group-hover:bg-herb-600 group-hover:text-white transition">
+                            Tap or Drop Here (<span id="count-mary">0</span>/4)
+                        </span>
+                    </div>
+
+                    <!-- Sorted Items List -->
+                    <ul id="list-mary" class="space-y-2 mt-1 flex-grow text-sm sm:text-base font-bold text-navy-900"></ul>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- MODE 2: YEAR 2 COMPARISON QUIZ                            -->
+        <!-- ========================================================= -->
+        <section id="view-quiz" class="hidden max-w-3xl mx-auto">
+            
+            <!-- Quiz Active Container -->
+            <div id="quiz-active-container" class="bg-parchment-50 rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-parchment-300">
+                
+                <!-- Progress Header -->
+                <div class="flex items-center justify-between gap-4 mb-3">
+                    <span class="text-base sm:text-lg font-extrabold text-navy-900 uppercase tracking-wider">
+                        Question <span id="quiz-q-num">1</span> of 6
+                    </span>
+                    <span class="px-4 py-1.5 rounded-full bg-lamp-100 border-2 border-lamp-400 text-lamp-700 font-extrabold text-base">
+                        Stars: <span id="quiz-score">0</span> / 6
+                    </span>
+                </div>
+
+                <!-- Visual Progress Bar -->
+                <div class="w-full h-4 bg-parchment-200 rounded-full overflow-hidden mb-6 border border-parchment-300">
+                    <div id="quiz-progress-bar" class="h-full bg-gradient-to-r from-lamp-500 to-herb-500 transition-all duration-500 rounded-full" style="width: 16.66%"></div>
+                </div>
+
+                <!-- Question Prompt -->
+                <h2 id="quiz-question-text" class="font-serif text-2xl sm:text-3xl font-extrabold text-navy-900 leading-snug mb-6">
+                    Question goes here...
+                </h2>
+
+                <!-- Multiple Choice Options -->
+                <div id="quiz-options-grid" class="space-y-4">
+                    <!-- Buttons injected dynamically -->
+                </div>
+
+                <!-- Explanation Box (Revealed on Answer) -->
+                <div id="quiz-explanation-box" class="hidden mt-6 p-5 sm:p-6 rounded-2xl border-2 animate-pop">
+                    <div class="flex items-start gap-3.5">
+                        <div id="quiz-exp-badge" class="w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-xl text-white flex-shrink-0 mt-0.5"></div>
+                        <div>
+                            <h3 id="quiz-exp-title" class="font-extrabold text-xl"></h3>
+                            <p id="quiz-exp-text" class="text-base sm:text-lg font-semibold mt-1 leading-relaxed"></p>
+                        </div>
+                    </div>
+                    <div class="mt-5 flex justify-end">
+                        <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="px-7 py-3.5 rounded-2xl bg-navy-900 hover:bg-navy-800 text-white font-extrabold text-lg shadow-md transition flex items-center gap-2 cursor-pointer">
+                            <span>Next Question</span>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Final Summary Screen -->
+            <div id="quiz-summary-container" class="hidden relative overflow-hidden bg-parchment-50 rounded-3xl p-6 sm:p-10 shadow-2xl border-4 border-lamp-500 animate-pop">
+                <div id="quiz-confetti-container" class="absolute inset-0 pointer-events-none"></div>
+                <div class="relative z-10">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-lamp-100 border-4 border-lamp-500 text-lamp-600 mb-4 shadow-md animate-float">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h2 class="font-serif text-3xl sm:text-4xl font-extrabold text-navy-900">
+                            Super Work, Year 2!
+                        </h2>
+                        <p class="text-xl sm:text-2xl font-extrabold text-lamp-700 mt-2">
+                            You won <span id="final-quiz-score" class="underline decoration-lamp-400 decoration-4">6</span> out of 6 stars!
+                        </p>
+                    </div>
+
+                    <!-- Big Question Answer Synthesis Box -->
+                    <div class="bg-navy-900 text-parchment-50 rounded-2xl p-6 sm:p-7 border-2 border-lamp-400 shadow-lg mb-8">
+                        <div class="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-lamp-400 mb-1">Answering Our Big Question</div>
+                        <h3 class="font-serif text-2xl sm:text-3xl font-extrabold text-white mb-4">
+                            "How did a lamp and herbs change hospitals?"
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-base sm:text-lg">
+                            <div class="bg-white/10 rounded-xl p-4 border border-lamp-400/30">
+                                <div class="font-extrabold text-lamp-300 text-xl mb-1">🕯️ Florence's Lamp</div>
+                                <p class="text-parchment-100 leading-relaxed font-semibold">
+                                    Florence checked on soldiers at night and made hospitals <strong>clean, fresh, and hygienic</strong> so germs could not spread.
+                                </p>
+                            </div>
+                            <div class="bg-white/10 rounded-xl p-4 border border-herb-400/30">
+                                <div class="font-extrabold text-herb-200 text-xl mb-1">🌿 Mary's Herbs</div>
+                                <p class="text-parchment-100 leading-relaxed font-semibold">
+                                    Mary used <strong>traditional Jamaican herbs</strong>, warm food, and kind care right on the battlefield to help hurt soldiers heal.
+                                </p>
+                            </div>
+                        </div>
+                        <p class="mt-5 text-center font-bold text-lamp-200 text-base sm:text-lg">
+                            Together, Florence Nightingale and Mary Seacole showed the world that hospitals need both <span class="underline">clean, safe wards</span> and <span class="underline">kind, loving care</span>!
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-center gap-4">
+                        <button onclick="resetQuiz()" class="px-7 py-4 rounded-2xl bg-lamp-500 hover:bg-lamp-400 text-navy-950 font-extrabold text-lg shadow-md transition cursor-pointer">
+                            Play Quiz Again
+                        </button>
+                        <button onclick="switchMode('sort')" class="px-7 py-4 rounded-2xl bg-navy-900 hover:bg-navy-800 text-white font-extrabold text-lg shadow-md transition cursor-pointer">
+                            Back to Lamp or Herbs Sorting
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Subtle Classroom Footer -->
+    <footer class="text-center py-4 px-4 text-sm text-navy-800/75 font-bold">
+        Year 2 Interactive History Game • Florence Nightingale &amp; Mary Seacole
+    </footer>
+
+    <!-- Application Logic -->
+    <script>
+        // ==========================================
+        // 1. DATASET: SORTING ITEMS (Exact 17 Clues)
+        // ==========================================
+        const SORTING_DATA = [
+            // Florence Nightingale (6 items)
+            {
+                id: 'fn-1',
+                text: "Was born in Italy",
+                category: "florence",
+                explanation: "Florence was born in Florence, Italy, in 1820—that is how she got her name!"
+            },
+            {
+                id: 'fn-2',
+                text: "Was known as the Lady with the Lamp",
+                category: "florence",
+                explanation: "Florence carried a lamp to check on soldiers in the dark hospital wards at night."
+            },
+            {
+                id: 'fn-3',
+                text: "Worked hard to make hospitals cleaner, more hygienic places",
+                category: "florence",
+                explanation: "Florence scrubbed the dirty hospital wards and brought in clean sheets and fresh air."
+            },
+            {
+                id: 'fn-4',
+                text: "Helped away from the fighting",
+                category: "florence",
+                explanation: "Florence worked in a big army hospital at Scutari, miles away from the battlefield."
+            },
+            {
+                id: 'fn-5',
+                text: "Was given financial help from family",
+                category: "florence",
+                explanation: "Florence came from a wealthy family who helped pay for her journey and work."
+            },
+            {
+                id: 'fn-6',
+                text: "Was given financial help from the government",
+                category: "florence",
+                explanation: "The British government sent Florence to run the hospital and helped fund her work, whereas Mary had to pay her own way!"
+            },
+
+            // Mary Seacole (4 items)
+            {
+                id: 'ms-1',
+                text: "Used traditional herbs and medicines to help patients",
+                category: "mary",
+                explanation: "Mary learned about herbal remedies from her mother in Jamaica."
+            },
+            {
+                id: 'ms-2',
+                text: "Helped on the battlefield",
+                category: "mary",
+                explanation: "Mary rode right onto the battlefield with food and medicine for hurt soldiers!"
+            },
+            {
+                id: 'ms-3',
+                text: "Was known as Mother Seacole",
+                category: "mary",
+                explanation: "The soldiers called Mary 'Mother Seacole' because she was so kind and caring."
+            },
+            {
+                id: 'ms-4',
+                text: "Was born in Jamaica",
+                category: "mary",
+                explanation: "Mary was born in Kingston, Jamaica, in 1805."
+            },
+
+            // Both Nurses (7 items)
+            {
+                id: 'both-1',
+                text: "Challenged old ideas about what women could do",
+                category: "both",
+                explanation: "Both Florence and Mary showed everyone that women could do amazing, brave jobs!"
+            },
+            {
+                id: 'both-2',
+                text: "Cared a lot for people and tried her best to help wounded soldiers",
+                category: "both",
+                explanation: "Both nurses worked tirelessly to look after hurt and poorly soldiers."
+            },
+            {
+                id: 'both-3',
+                text: "Nursed in the Crimean War",
+                category: "both",
+                explanation: "Both Florence and Mary travelled to help soldiers during the Crimean War."
+            },
+            {
+                id: 'both-4',
+                text: "Travelled from another country to help soldiers in Crimea",
+                category: "both",
+                explanation: "Florence travelled from Britain and Mary travelled all the way from Jamaica!"
+            },
+            {
+                id: 'both-5',
+                text: "Died in England",
+                category: "both",
+                explanation: "Both Florence and Mary spent their later years in London, England."
+            },
+            {
+                id: 'both-6',
+                text: "Used her own knowledge and ideas to help soldiers in her care",
+                category: "both",
+                explanation: "Florence used her maths and cleaning ideas, and Mary used her herbal medicine knowledge!"
+            },
+            {
+                id: 'both-7',
+                text: "Had a nickname",
+                category: "both",
+                explanation: "Florence was 'The Lady with the Lamp' and Mary was 'Mother Seacole'!"
+            }
+        ];
+
+        // ==========================================
+        // 2. DATASET: YEAR 2 COMPARISON QUIZ
+        // ==========================================
+        const QUIZ_DATA = [
+            {
+                question: "Why did soldiers call Florence Nightingale 'The Lady with the Lamp'?",
+                options: [
+                    "She walked around the dark hospital wards at night with a lamp to check on them",
+                    "She sold lamps in a shop",
+                    "She made tea over a lamp",
+                    "She was scared of the dark"
+                ],
+                correctIndex: 0,
+                explanation: "Every night in the hospital at Scutari, Florence walked past the beds holding her lamp to make sure the poorly soldiers were safe."
+            },
+            {
+                question: "Where was Mary Seacole born?",
+                options: [
+                    "In Italy",
+                    "In Kingston, Jamaica",
+                    "In Scotland",
+                    "In Australia"
+                ],
+                correctIndex: 1,
+                explanation: "Mary Seacole was born in Kingston, Jamaica, in 1805, where her mother taught her how to make herbal medicines."
+            },
+            {
+                question: "How was where Mary worked different from where Florence worked?",
+                options: [
+                    "Florence worked on a ship and Mary worked in a castle",
+                    "Florence worked in a hospital away from the fighting, while Mary also helped right on the battlefield",
+                    "They both worked in the exact same room in London",
+                    "Neither of them went to the Crimean War"
+                ],
+                correctIndex: 1,
+                explanation: "Florence ran the big army hospital at Scutari away from the fighting, while brave Mary rode right onto the battlefield with food and medicine!"
+            },
+            {
+                question: "How did Florence Nightingale make the hospital at Scutari much better?",
+                options: [
+                    "She painted the walls bright pink",
+                    "She scrubbed the dirty wards, washed sheets, and let in fresh air",
+                    "She gave every soldier a puppy",
+                    "She closed all the windows"
+                ],
+                correctIndex: 1,
+                explanation: "Florence knew that dirt made soldiers poorly. Cleaning the hospital and washing bedding stopped germs from spreading!"
+            },
+            {
+                question: "Who paid for Mary Seacole to travel to the Crimean War?",
+                options: [
+                    "The British government paid for her",
+                    "She paid for her own journey after the government said no",
+                    "Florence Nightingale bought her ticket",
+                    "A king gave her a gold boat"
+                ],
+                correctIndex: 1,
+                explanation: "The government gave Florence financial help, but they turned Mary down. Mary did not give up—she paid her own way to Crimea!"
+            },
+            {
+                question: "What is something that is TRUE about BOTH Florence Nightingale and Mary Seacole?",
+                options: [
+                    "They were both born in Italy",
+                    "They both used Jamaican herbs",
+                    "They both nursed wounded soldiers in the Crimean War and had special nicknames",
+                    "They both worked only in London"
+                ],
+                correctIndex: 2,
+                explanation: "Both nurses were brave pioneers in the Crimean War! Florence was 'The Lady with the Lamp' and Mary was 'Mother Seacole'."
+            }
+        ];
+
+        // ==========================================
+        // 3. STATE MANAGEMENT
+        // ==========================================
+        let shuffledDeck = [];
+        let currentCardIndex = 0;
+        let sortedCounts = { florence: 0, both: 0, mary: 0 };
+
+        let quizIndex = 0;
+        let quizScore = 0;
+        let quizAnswered = false;
+
+        // Shuffle helper (Fisher-Yates)
+        function shuffleArray(array) {
+            const copy = [...array];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        // Confetti Celebration Helper
+        function launchConfetti(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            const colours = ['#FBBF24', '#10B981', '#8B5CF6', '#F43F5E', '#38BDF8', '#FDE68A'];
+
+            for (let i = 0; i < 42; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = `${Math.random() * 100}%`;
+                piece.style.backgroundColor = colours[i % colours.length];
+                piece.style.animationDelay = `${Math.random() * 0.8}s`;
+                piece.style.width = `${8 + Math.random() * 8}px`;
+                piece.style.height = `${8 + Math.random() * 8}px`;
+                container.appendChild(piece);
+            }
+        }
+
+        // ==========================================
+        // 4. MODE NAVIGATION (TABS)
+        // ==========================================
+        function switchMode(mode) {
+            const sortView = document.getElementById('view-sort');
+            const quizView = document.getElementById('view-quiz');
+            const tabSort = document.getElementById('tab-sort');
+            const tabQuiz = document.getElementById('tab-quiz');
+
+            if (mode === 'sort') {
+                sortView.classList.remove('hidden');
+                quizView.classList.add('hidden');
+                
+                tabSort.className = "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-extrabold text-base sm:text-lg transition-all duration-200 bg-lamp-500 text-navy-950 shadow-md cursor-pointer";
+                tabQuiz.className = "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-extrabold text-base sm:text-lg transition-all duration-200 text-parchment-200 hover:text-white cursor-pointer";
+            } else {
+                sortView.classList.add('hidden');
+                quizView.classList.remove('hidden');
+
+                tabQuiz.className = "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-extrabold text-base sm:text-lg transition-all duration-200 bg-herb-500 text-white shadow-md cursor-pointer";
+                tabSort.className = "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-extrabold text-base sm:text-lg transition-all duration-200 text-parchment-200 hover:text-white cursor-pointer";
+            }
+        }
+
+        // ==========================================
+        // 5. SORTING GAME LOGIC (DRAG + TAP)
+        // ==========================================
+        function updateSortProgress() {
+            const total = SORTING_DATA.length;
+            const pct = (currentCardIndex / total) * 100;
+            document.getElementById('sort-progress-text').textContent = `${currentCardIndex} / ${total}`;
+            document.getElementById('sort-progress-fill').style.width = `${pct}%`;
+            document.getElementById('sort-progressbar').setAttribute('aria-valuenow', currentCardIndex);
+        }
+
+        function initSortingGame() {
+            shuffledDeck = shuffleArray(SORTING_DATA);
+            currentCardIndex = 0;
+            sortedCounts = { florence: 0, both: 0, mary: 0 };
+
+            // Clear bucket lists & counts
+            ['florence', 'both', 'mary'].forEach(cat => {
+                document.getElementById(`list-${cat}`).innerHTML = '';
+                document.getElementById(`count-${cat}`).textContent = '0';
+            });
+
+            updateSortProgress();
+            document.getElementById('clue-card-wrapper').classList.remove('hidden');
+            document.getElementById('sort-complete-card').classList.add('hidden');
+            document.getElementById('sort-feedback-banner').classList.add('hidden');
+
+            renderCurrentClue();
+        }
+
+        function renderCurrentClue() {
+            if (currentCardIndex >= shuffledDeck.length) {
+                // Show celebratory completion card with confetti
+                document.getElementById('clue-card-wrapper').classList.add('hidden');
+                document.getElementById('sort-complete-card').classList.remove('hidden');
+                launchConfetti('confetti-container');
+                return;
+            }
+
+            const item = shuffledDeck[currentCardIndex];
+            const cardEl = document.getElementById('current-clue-card');
+            
+            // Re-trigger pop animation
+            cardEl.classList.remove('animate-pop');
+            void cardEl.offsetWidth;
+            cardEl.classList.add('animate-pop');
+
+            document.getElementById('clue-number').textContent = currentCardIndex + 1;
+            document.getElementById('clue-text').textContent = `"${item.text}"`;
+        }
+
+        // Drag Events on Clue Card
+        const clueCard = document.getElementById('current-clue-card');
+        clueCard.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', currentCardIndex.toString());
+            clueCard.classList.add('dragging-card');
+        });
+        clueCard.addEventListener('dragend', () => {
+            clueCard.classList.remove('dragging-card');
+        });
+
+        // Drop Zone Events
+        function handleDragOver(e, category) {
+            e.preventDefault();
+            const bucket = document.getElementById(`bucket-${category}`);
+            bucket.classList.add('drop-zone-active', 'border-solid');
+            bucket.classList.remove('border-dashed');
+        }
+
+        function handleDragLeave(e, category) {
+            const bucket = document.getElementById(`bucket-${category}`);
+            bucket.classList.remove('drop-zone-active', 'border-solid');
+            bucket.classList.add('border-dashed');
+        }
+
+        function handleDrop(e, category) {
+            e.preventDefault();
+            handleDragLeave(e, category);
+            evaluateSortAttempt(category);
+        }
+
+        // Touch / Interactive Whiteboard Tap Assignment
+        function handleBucketClick(category) {
+            if (currentCardIndex >= shuffledDeck.length) return;
+            evaluateSortAttempt(category);
+        }
+
+        // Keyboard accessibility for buckets
+        ['florence', 'both', 'mary'].forEach(cat => {
+            document.getElementById(`bucket-${cat}`).addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleBucketClick(cat);
+                }
+            });
+        });
+
+        function evaluateSortAttempt(chosenCategory) {
+            const currentItem = shuffledDeck[currentCardIndex];
+            const feedbackBanner = document.getElementById('sort-feedback-banner');
+            const feedbackIcon = document.getElementById('sort-feedback-icon');
+            const feedbackTitle = document.getElementById('sort-feedback-title');
+            const feedbackDesc = document.getElementById('sort-feedback-desc');
+
+            feedbackBanner.classList.remove('hidden', 'bg-herb-100', 'border-herb-500', 'text-herb-700', 'bg-amber-100', 'border-amber-500', 'text-amber-900', 'animate-pop');
+            void feedbackBanner.offsetWidth;
+            feedbackBanner.classList.add('animate-pop');
+
+            if (chosenCategory === currentItem.category) {
+                // CORRECT!
+                feedbackBanner.classList.add('bg-herb-100', 'border-herb-500', 'text-navy-900');
+                feedbackIcon.className = "flex-shrink-0 w-10 h-10 rounded-full bg-herb-600 text-white flex items-center justify-center font-extrabold text-xl mt-0.5";
+                feedbackIcon.textContent = "★";
+
+                const labelMap = {
+                    florence: "Well done! That belongs to Florence Nightingale.",
+                    mary: "Well done! That belongs to Mary Seacole.",
+                    both: "Well done! That is true for Both Nurses."
+                };
+                feedbackTitle.textContent = labelMap[chosenCategory];
+                feedbackTitle.className = "font-extrabold text-lg sm:text-xl text-herb-700";
+                feedbackDesc.textContent = currentItem.explanation;
+
+                // Add item pill into the chosen bucket
+                const listEl = document.getElementById(`list-${chosenCategory}`);
+                const li = document.createElement('li');
+                li.className = "bg-white/95 px-3.5 py-2.5 rounded-xl shadow-sm border border-black/10 flex items-start gap-2 animate-pop";
+                li.innerHTML = `<span class="text-herb-600 font-extrabold mt-0.5">✓</span><span>${currentItem.text}</span>`;
+                listEl.prepend(li);
+
+                // Update Counters & Progress Bar
+                sortedCounts[chosenCategory]++;
+                document.getElementById(`count-${chosenCategory}`).textContent = sortedCounts[chosenCategory];
+                currentCardIndex++;
+                updateSortProgress();
+
+                renderCurrentClue();
+            } else {
+                // GENTLE TRY AGAIN FEEDBACK FOR YEAR 2
+                const cardEl = document.getElementById('current-clue-card');
+                cardEl.classList.remove('animate-shake');
+                void cardEl.offsetWidth;
+                cardEl.classList.add('animate-shake');
+
+                feedbackBanner.classList.add('bg-amber-100', 'border-amber-500', 'text-navy-900');
+                feedbackIcon.className = "flex-shrink-0 w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center font-extrabold text-xl mt-0.5";
+                feedbackIcon.textContent = "?";
+
+                const hintMap = {
+                    florence: "Have another go! Think about Florence—the Lady with the Lamp who cleaned hospitals.",
+                    mary: "Have another go! Think about Mary—Mother Seacole from Jamaica who used herbs.",
+                    both: "Have another go! Could this be something that BOTH Florence and Mary did?"
+                };
+
+                feedbackTitle.textContent = "Not quite — try another box!";
+                feedbackTitle.className = "font-extrabold text-lg sm:text-xl text-amber-800";
+                feedbackDesc.textContent = hintMap[currentItem.category];
+            }
+        }
+
+        function resetSortingGame() {
+            initSortingGame();
+        }
+
+        // ==========================================
+        // 6. YEAR 2 COMPARISON QUIZ LOGIC
+        // ==========================================
+        function initQuiz() {
+            quizIndex = 0;
+            quizScore = 0;
+            quizAnswered = false;
+
+            document.getElementById('quiz-score').textContent = '0';
+            document.getElementById('quiz-active-container').classList.remove('hidden');
+            document.getElementById('quiz-summary-container').classList.add('hidden');
+
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            quizAnswered = false;
+            const qData = QUIZ_DATA[quizIndex];
+
+            document.getElementById('quiz-q-num').textContent = quizIndex + 1;
+            const pct = ((quizIndex + 1) / QUIZ_DATA.length) * 100;
+            document.getElementById('quiz-progress-bar').style.width = `${pct}%`;
+
+            document.getElementById('quiz-question-text').textContent = qData.question;
+            document.getElementById('quiz-explanation-box').classList.add('hidden');
+
+            const optionsGrid = document.getElementById('quiz-options-grid');
+            optionsGrid.innerHTML = '';
+
+            const letters = ['A', 'B', 'C', 'D'];
+
+            qData.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = "w-full text-left p-4 sm:p-5 rounded-2xl bg-white hover:bg-lamp-100/80 border-2 border-parchment-300 hover:border-lamp-500 transition-all duration-150 flex items-center gap-4 shadow-sm cursor-pointer group";
+                btn.onclick = () => selectQuizAnswer(idx, btn);
+
+                btn.innerHTML = `
+                    <span class="w-10 h-10 rounded-xl bg-parchment-200 group-hover:bg-lamp-500 group-hover:text-white text-navy-900 font-extrabold text-lg flex items-center justify-center flex-shrink-0 transition">
+                        ${letters[idx]}
+                    </span>
+                    <span class="text-base sm:text-xl font-extrabold text-navy-900 leading-snug">${optText}</span>
+                `;
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function selectQuizAnswer(selectedIdx, clickedBtn) {
+            if (quizAnswered) return;
+            quizAnswered = true;
+
+            const qData = QUIZ_DATA[quizIndex];
+            const isCorrect = selectedIdx === qData.correctIndex;
+            const allBtns = document.getElementById('quiz-options-grid').querySelectorAll('button');
+
+            allBtns.forEach((btn, idx) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:bg-lamp-100/80', 'hover:border-lamp-500', 'cursor-pointer');
+                btn.classList.add('cursor-default');
+
+                if (idx === qData.correctIndex) {
+                    btn.classList.remove('bg-white', 'border-parchment-300');
+                    btn.classList.add('bg-herb-100', 'border-herb-600', 'ring-2', 'ring-herb-500/40');
+                    btn.querySelector('span:first-child').className = "w-10 h-10 rounded-xl bg-herb-600 text-white font-extrabold text-lg flex items-center justify-center flex-shrink-0";
+                    btn.querySelector('span:first-child').textContent = "✓";
+                } else if (idx === selectedIdx && !isCorrect) {
+                    btn.classList.remove('bg-white', 'border-parchment-300');
+                    btn.classList.add('bg-red-50', 'border-red-400');
+                    btn.querySelector('span:first-child').className = "w-10 h-10 rounded-xl bg-red-500 text-white font-extrabold text-lg flex items-center justify-center flex-shrink-0";
+                    btn.querySelector('span:first-child').textContent = "✕";
+                } else {
+                    btn.classList.add('opacity-60');
+                }
+            });
+
+            if (isCorrect) {
+                quizScore++;
+                document.getElementById('quiz-score').textContent = quizScore;
+            }
+
+            // Show Explanation Box
+            const expBox = document.getElementById('quiz-explanation-box');
+            const expBadge = document.getElementById('quiz-exp-badge');
+            const expTitle = document.getElementById('quiz-exp-title');
+            const expText = document.getElementById('quiz-exp-text');
+            const nextBtn = document.getElementById('quiz-next-btn');
+
+            expBox.classList.remove('hidden', 'bg-herb-100/80', 'border-herb-500', 'bg-amber-50', 'border-amber-400');
+            if (isCorrect) {
+                expBox.classList.add('bg-herb-100/80', 'border-herb-500');
+                expBadge.className = "w-10 h-10 rounded-full bg-herb-600 flex items-center justify-center font-extrabold text-xl text-white flex-shrink-0 mt-0.5";
+                expBadge.textContent = "★";
+                expTitle.textContent = "Brilliant! You got it right!";
+                expTitle.className = "font-extrabold text-xl text-herb-700";
+            } else {
+                expBox.classList.add('bg-amber-50', 'border-amber-400');
+                expBadge.className = "w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center font-extrabold text-xl text-white flex-shrink-0 mt-0.5";
+                expBadge.textContent = "!";
+                expTitle.textContent = "Good try! Look at the green box:";
+                expTitle.className = "font-extrabold text-xl text-amber-800";
+            }
+
+            expText.textContent = qData.explanation;
+            nextBtn.querySelector('span').textContent = (quizIndex === QUIZ_DATA.length - 1) ? "See Our Big Answer" : "Next Question";
+        }
+
+        function nextQuizQuestion() {
+            quizIndex++;
+            if (quizIndex < QUIZ_DATA.length) {
+                renderQuizQuestion();
+            } else {
+                document.getElementById('quiz-active-container').classList.add('hidden');
+                document.getElementById('quiz-summary-container').classList.remove('hidden');
+                document.getElementById('final-quiz-score').textContent = quizScore;
+                launchConfetti('quiz-confetti-container');
+            }
+        }
+
+        function resetQuiz() {
+            initQuiz();
+        }
+
+        // Initialise both games on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initSortingGame();
+            initQuiz();
+        });
+    </script>
+</body>
+</html>
